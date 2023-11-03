@@ -245,4 +245,20 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+-- trigger
+CREATE OR REPLACE FUNCTION check_bet_amount()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.amount <= (SELECT amount
+                      FROM Balance
+                      WHERE user_id = NEW.user_id) THEN
+        RETURN NEW;
+    ELSE
+        RAISE EXCEPTION 'Bet amount exceeds user balance';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
 

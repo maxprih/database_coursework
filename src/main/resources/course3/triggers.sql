@@ -13,3 +13,10 @@ CREATE TRIGGER update_bet_status_trigger
     FOR EACH ROW
     WHEN (OLD.status IS DISTINCT FROM NEW.status)
 EXECUTE FUNCTION update_bet_status();
+
+DROP TRIGGER IF EXISTS before_insert_bet ON bet;
+CREATE TRIGGER before_insert_bet
+    BEFORE INSERT
+    ON Bet
+    FOR EACH ROW
+EXECUTE FUNCTION check_bet_amount();
