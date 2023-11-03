@@ -5,7 +5,6 @@ CREATE TRIGGER check_match_date_within_league_date_trigger
     FOR EACH ROW
 EXECUTE FUNCTION check_match_date_within_league_date();
 
-
 DROP TRIGGER IF EXISTS update_bet_status_trigger ON match_event;
 CREATE TRIGGER update_bet_status_trigger
     AFTER UPDATE
@@ -20,3 +19,10 @@ CREATE TRIGGER before_insert_bet
     ON Bet
     FOR EACH ROW
 EXECUTE FUNCTION check_bet_amount();
+
+DROP TRIGGER IF EXISTS after_update_bet_status ON bet;
+CREATE TRIGGER after_update_bet_status
+    AFTER UPDATE
+    ON Bet
+    FOR EACH ROW
+EXECUTE FUNCTION update_user_balance();

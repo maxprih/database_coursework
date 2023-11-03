@@ -23,7 +23,6 @@ DECLARE
     event_status match_event_status;
 BEGIN
     IF is_express THEN
---         express bets
         FOR event_status IN
             SELECT ME.status
             FROM Bet B
@@ -32,13 +31,11 @@ BEGIN
             WHERE B.id = curr_bet_id
             LOOP
                 IF event_status <> 'WIN' THEN
-                    RAISE NOTICE 'IM HERE';
                     RETURN FALSE;
                 END IF;
             END LOOP;
 
     ELSE
---         solo bets
         IF EXISTS (SELECT ME.status
                    FROM Bet B
                             JOIN Match_Event_Bet MEB ON B.id = MEB.bet_id
@@ -62,7 +59,6 @@ DECLARE
     event_status match_event_status;
 BEGIN
     IF is_express THEN
---         express bets
         FOR event_status IN
             SELECT ME.status
             FROM Bet B
@@ -77,7 +73,6 @@ BEGIN
         RETURN FALSE;
 
     ELSE
---         solo bets
         IF EXISTS (SELECT ME.status
                    FROM Bet B
                             JOIN Match_Event_Bet MEB ON B.id = MEB.bet_id
@@ -182,7 +177,6 @@ $$ LANGUAGE plpgsql;
 
 
 
---
 CREATE OR REPLACE FUNCTION update_bet_status()
     RETURNS TRIGGER AS
 $$
@@ -259,6 +253,21 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+-- trigger
+CREATE OR REPLACE FUNCTION update_user_balance()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'WIN' THEN
+        UPDATE Balance
+        SET amount = amount + calculate_bet_winnings(NEW.id)
+        WHERE user_id = NEW.user_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 
 
 
