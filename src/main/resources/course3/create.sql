@@ -9,8 +9,16 @@ CREATE TABLE "user"
 CREATE TABLE Role
 (
     id        SERIAL PRIMARY KEY,
-    role_name TEXT NOT NULL,
-    user_id   INT  NOT NULL REFERENCES "user" (id)
+    role_name TEXT NOT NULL
+);
+
+CREATE TABLE users_roles
+(
+    user_id int not null,
+    role_id int    not null,
+    primary key (user_id, role_id),
+    foreign key (user_id) references "user"(id),
+    foreign key (role_id) references role(id)
 );
 
 CREATE TABLE Balance
@@ -65,6 +73,7 @@ CREATE TABLE Match
 );
 
 CREATE TYPE match_event_status AS ENUM ('WIN', 'LOSE', 'TBD');
+CREATE CAST (varchar AS match_event_status) WITH INOUT AS IMPLICIT;
 
 CREATE TABLE Match_Event
 (
@@ -77,13 +86,14 @@ CREATE TABLE Match_Event
 );
 
 CREATE TYPE bet_status AS ENUM ('WIN', 'LOSE', 'TBD');
+CREATE CAST (varchar AS bet_status) WITH INOUT AS IMPLICIT;
 
 CREATE TABLE Bet
 (
     id      SERIAL PRIMARY KEY,
     amount  INT        NOT NULL,
     status  bet_status NOT NULL default 'TBD',
-    date    TIMESTAMP  NOT NULL,
+    date    TIMESTAMP  NOT NULL default now(),
     user_id INT        NOT NULL REFERENCES "user" (id)
         check ( amount > 0 )
 );

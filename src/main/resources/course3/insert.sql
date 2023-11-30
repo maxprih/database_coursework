@@ -3,10 +3,12 @@ VALUES ('maxpri', 'maxpri_pass', 'Maxim Pri'),
        ('admin_user', 'adminpass', 'Sample Admin'),
        ('moder_user', 'moderpass', 'Sample Moderator');
 
-INSERT INTO Role (role_name, user_id)
-VALUES ('ROLE_USER', 1),
-       ('ROLE_ADMIN', 2),
-       ('ROLE_MODERATOR', 3);
+INSERT INTO Role (role_name)
+VALUES ('ROLE_USER'),
+       ('ROLE_ADMIN'),
+       ('ROLE_MODERATOR');
+
+INSERT INTO users_roles (user_id, role_id) values (1, 1), (2,2), (3,3);
 
 INSERT INTO Balance (amount, user_id)
 VALUES (1337, 1),
@@ -52,6 +54,9 @@ VALUES ('Победа первого', 1.7, 1),
        ('Победа второго', 1.85, 3),
        ('Победа первого', 1.3, 4),
        ('Победа второго', 3.1, 4);
+
+INSERT INTO Match_Event (name, coefficient, match_id)
+VALUES ('Сломаны колени', 5.85, 2);
 
 INSERT INTO Match_Event (name, coefficient, match_id, status)
 VALUES ('Нокаут произошел', 7.5, 1, 'WIN'),

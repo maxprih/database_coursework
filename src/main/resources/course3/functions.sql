@@ -92,7 +92,6 @@ CREATE OR REPLACE FUNCTION calculate_total_coefficient(curr_bet_id INT)
     RETURNS DOUBLE PRECISION AS
 $$
 DECLARE
-    is_express        BOOLEAN          := is_express_bet(curr_bet_id);
     total_coefficient DOUBLE PRECISION := 1;
     event_id          INT;
     bet_amount        INT;
@@ -105,11 +104,7 @@ BEGIN
                  JOIN Match_Event ME ON MEB.match_event_id = ME.id
         WHERE B.id = curr_bet_id
         LOOP
-            IF is_express THEN
-                total_coefficient := total_coefficient * event_coefficient;
-            ELSE
-                total_coefficient := event_coefficient;
-            END IF;
+            total_coefficient := total_coefficient * event_coefficient;
         END LOOP;
 
     RETURN total_coefficient;
@@ -118,31 +113,63 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION calculate_bet_winnings(curr_bet_id INT)
-    RETURNS DOUBLE PRECISION AS
-$$
+-- CREATE OR REPLACE FUNCTION calculate_bet_winnings(curr_bet_id INT)
+--     RETURNS DOUBLE PRECISION AS
+-- $$
+-- DECLARE
+--     total_winnings    DOUBLE PRECISION := 0;
+--     is_won            BOOLEAN          := is_bet_won(curr_bet_id);
+--     total_coefficient DOUBLE PRECISION := calculate_total_coefficient(curr_bet_id);
+--     bet_amount        INT;
+-- BEGIN
+--     If NOT is_won THEN
+--         RETURN 0;
+--     end if;
+--
+--     SELECT B.amount
+--     INTO bet_amount
+--     FROM Bet B
+--              JOIN Match_Event_Bet MEB ON B.id = MEB.bet_id
+--              JOIN Match_Event ME ON MEB.match_event_id = ME.id
+--     WHERE B.id = curr_bet_id;
+--
+--     total_winnings := total_coefficient * bet_amount;
+--
+--     RETURN round(total_winnings::numeric, 2);
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION calculate_bet_winnings(curr_bet_id INTEGER) RETURNS DOUBLE PRECISION
+    LANGUAGE plpgsql
+AS $$
 DECLARE
     total_winnings    DOUBLE PRECISION := 0;
-    is_won            BOOLEAN          := is_bet_won(curr_bet_id);
+    bet_status        bet_status;
     total_coefficient DOUBLE PRECISION := calculate_total_coefficient(curr_bet_id);
-    bet_amount        INT;
 BEGIN
-    If NOT is_won THEN
-        RETURN 0;
-    end if;
+    -- Get the bet status
+    SELECT status
+    INTO bet_status
+    FROM Bet
+    WHERE id = curr_bet_id;
 
-    SELECT B.amount
-    INTO bet_amount
-    FROM Bet B
-             JOIN Match_Event_Bet MEB ON B.id = MEB.bet_id
-             JOIN Match_Event ME ON MEB.match_event_id = ME.id
-    WHERE B.id = curr_bet_id;
+    CASE bet_status
+        WHEN 'WIN' THEN
+            total_winnings := total_coefficient * (SELECT amount FROM Bet WHERE id = curr_bet_id);
+        WHEN 'LOSE' THEN
+            total_winnings := -1 * (SELECT amount FROM Bet WHERE id = curr_bet_id);
+        ELSE
+            total_winnings := 0;
+        END CASE;
 
-    total_winnings := total_coefficient * bet_amount;
-
-    RETURN round(total_winnings::numeric, 2);
+    RETURN round(total_winnings::NUMERIC, 2);
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+-- Change the function owner if necessary
+    ALTER FUNCTION calculate_bet_winnings(INTEGER) OWNER TO max_pri;
+
 
 CREATE OR REPLACE FUNCTION get_matches_within_24_hours()
     RETURNS TABLE
