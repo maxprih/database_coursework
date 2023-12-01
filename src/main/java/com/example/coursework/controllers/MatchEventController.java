@@ -1,6 +1,7 @@
 package com.example.coursework.controllers;
 
 import com.example.coursework.models.dto.requests.ChangeEventRequest;
+import com.example.coursework.models.dto.requests.CreateMatchEventRequest;
 import com.example.coursework.services.MatchEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,13 @@ public class MatchEventController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> changeEventStatus(@RequestBody ChangeEventRequest request) {
         matchEventService.changeEventStatus(request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody CreateMatchEventRequest createMatchEventRequest) {
+        matchEventService.create(createMatchEventRequest);
 
         return ResponseEntity.ok().build();
     }

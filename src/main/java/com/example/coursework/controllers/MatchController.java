@@ -1,6 +1,7 @@
 package com.example.coursework.controllers;
 
 import com.example.coursework.models.dto.MatchDto;
+import com.example.coursework.models.dto.requests.CreateMatchRequest;
 import com.example.coursework.models.dto.responses.GetAllMatchesResponse;
 import com.example.coursework.services.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,4 +31,12 @@ public class MatchController {
     public ResponseEntity<MatchDto> getMatch(@PathVariable Integer id) {
         return ResponseEntity.ok(matchService.getMatchById(id));
     }
+
+    @PostMapping()
+    public ResponseEntity<?> create(@RequestBody CreateMatchRequest request) {
+        matchService.create(request);
+
+        return ResponseEntity.ok().build();
+    }
+
 }
