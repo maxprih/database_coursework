@@ -1,7 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/coursework
+    url: jdbc:postgres://course_db_iolt_user:R8rC5W3FNFiNhRwv9DV0X8nQb0LPTTJY@dpg-cll0l7sjtl8s73f4s2a0-a/course_db_iolt
     driver-class-name: org.postgresql.Driver
+    username: course_db_iolt_user
+    password: R8rC5W3FNFiNhRwv9DV0X8nQb0LPTTJY
   jpa:
     hibernate:
       ddl-auto: update
